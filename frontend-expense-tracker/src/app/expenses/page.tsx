@@ -12,6 +12,7 @@ interface Expense {
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([])
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState<Expense>({
     date: '',
     category: '',
@@ -39,16 +40,24 @@ export default function ExpensesPage() {
   }
 
   const handleSubmit = async () => {
-    await fetch('http://localhost:8080/api/expenses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+    const url = editingId
+        ? `http://localhost:8080/api/expenses/${editingId}`
+        : `http://localhost:8080/api/expenses`
+
+    const method = editingId ? 'PUT' : 'POST'
+
+    await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
     })
 
     setForm({ date: '', category: '', description: '', amount: 0 })
     setShowModal(false)
+    setEditingId(null)
     fetchExpenses()
   }
+
 
   const handleDelete = async (id: number) => {
     const confirmDelete = confirm('Are you sure you want to delete this expense?')
@@ -60,6 +69,13 @@ export default function ExpensesPage() {
 
     fetchExpenses()
   }
+
+  const handleEdit = (expense: Expense) => {
+    setForm(expense)
+    setEditingId(expense.id!)
+    setShowModal(true)
+  }
+
 
 
   return (
@@ -93,6 +109,13 @@ export default function ExpensesPage() {
                 <td className="border px-4 py-2">{exp.description}</td>
                 <td className="border px-4 py-2">{exp.amount.toLocaleString()}</td>
                 <td className="border px-4 py-2 text-center">
+                    <button
+                        onClick={() => handleEdit(exp)}
+                        className="text-blue-600 hover:underline mr-2"
+                    >
+                        Edit
+                    </button>
+
                     <button
                     onClick={() => handleDelete(exp.id!)}
                     className="text-red-600 hover:underline"
