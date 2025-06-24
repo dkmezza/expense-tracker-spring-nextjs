@@ -50,6 +50,18 @@ export default function ExpensesPage() {
     fetchExpenses()
   }
 
+  const handleDelete = async (id: number) => {
+    const confirmDelete = confirm('Are you sure you want to delete this expense?')
+    if (!confirmDelete) return
+
+    await fetch(`http://localhost:8080/api/expenses/${id}`, {
+        method: 'DELETE',
+    })
+
+    fetchExpenses()
+  }
+
+
   return (
     <main className="p-8">
       <h1 className="text-2xl font-bold mb-4">Expenses</h1>
@@ -62,24 +74,37 @@ export default function ExpensesPage() {
       </button>
 
       <table className="w-full border">
+
         <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-4 py-2">Date</th>
-            <th className="border px-4 py-2">Category</th>
-            <th className="border px-4 py-2">Description</th>
-            <th className="border px-4 py-2">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {expenses.map(exp => (
-            <tr key={exp.id}>
-              <td className="border px-4 py-2">{exp.date}</td>
-              <td className="border px-4 py-2">{exp.category}</td>
-              <td className="border px-4 py-2">{exp.description}</td>
-              <td className="border px-4 py-2">{exp.amount.toLocaleString()}</td>
+            <tr>
+                <th className="border px-4 py-2">Date</th>
+                <th className="border px-4 py-2">Category</th>
+                <th className="border px-4 py-2">Description</th>
+                <th className="border px-4 py-2">Amount</th>
+                <th className="border px-4 py-2">Action</th>
             </tr>
-          ))}
+        </thead>
+
+        <tbody>
+            {expenses.map(exp => (
+                <tr key={exp.id}>
+                <td className="border px-4 py-2">{exp.date}</td>
+                <td className="border px-4 py-2">{exp.category}</td>
+                <td className="border px-4 py-2">{exp.description}</td>
+                <td className="border px-4 py-2">{exp.amount.toLocaleString()}</td>
+                <td className="border px-4 py-2 text-center">
+                    <button
+                    onClick={() => handleDelete(exp.id!)}
+                    className="text-red-600 hover:underline"
+                    >
+                    Delete
+                    </button>
+                </td>
+                </tr>
+            ))}
         </tbody>
+
+
       </table>
 
       {/* Modal */}
